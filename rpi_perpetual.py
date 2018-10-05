@@ -12,6 +12,7 @@ import boto3
 from threading import Thread
 import json
 from pymongo import MongoClient
+from picamera import PiCamera
 
 def mongodb_upload(response,image_name):
     try:
@@ -78,7 +79,10 @@ def s3_upload(image_name):
 
 def image_capture():
     image_name = datetime.datetime.utcnow().strftime("%Y-%m-%d-%H:%M:%S")
-    os.system("fswebcam -d /dev/video0 -r 720x480 "+image_name+".jpeg")
+    camera.start_preview()
+    time.sleep(2)
+    camera.capture(image_name+'.jpeg')
+    camera.stop_preview()
     image_upload = Thread(target=s3_upload,args=[image_name+".jpeg"])
     image_upload.start()
 
@@ -90,8 +94,11 @@ collection2 = db.face_metrics
 s3 = boto3.resource("s3")
 rekognition = boto3.client("rekognition", "us-east-2")
 BUCKET = "cromdev"
+
+camera = PiCamera()
+camera.resolution = (2592, 1944)
 t=30
-i=1       
+i=1    
 
 while True:
     init=Thread(target=image_capture)
