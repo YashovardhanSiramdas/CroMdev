@@ -48,11 +48,12 @@ def face_matches(image_name):
 
 def mongodb_upload(response,image_name):
     try:
-        collection1.insert_one({
-            "image_name": image_name,
-            "face_count": len(response)
-            })
-        print("successfully inserted face count")
+        if len(response) > 0:
+            collection1.insert_one({
+                "image_name": image_name,
+                "face_count": len(response)
+                })
+            print("successfully inserted face count")
 
         for record in response:
             collection2.insert_one({
